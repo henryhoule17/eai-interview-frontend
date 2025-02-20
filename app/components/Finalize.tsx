@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import type { ExtractedData } from '../upload/page';
 import { CheckCircleIcon } from '@heroicons/react/16/solid';
 
