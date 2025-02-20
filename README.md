@@ -1,14 +1,122 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Endeavor Interview Project - Frontend
 
-## Getting Started
+This is the frontend service for the PDF extraction and matching application. It's built with Next.js, TypeScript, and Tailwind CSS.
 
-First, run the development server:
+## Prerequisites
 
+- Node.js 20+
+- npm or yarn
+- Docker (optional)
+
+## Local Development Setup
+
+1. Install dependencies:
+   ```bash
+   npm install
+   # or
+   yarn install
+   ```
+
+2. Set up environment variables:
+   Create a `.env.local` file with:
+   ```env
+   NEXT_PUBLIC_BACKEND_URL=http://localhost:8000
+   ```
+
+3. Run the development server:
+   ```bash
+   npm run dev
+   # or
+   yarn dev
+   ```
+
+   The app will be available at [http://localhost:3000](http://localhost:3000)
+
+## Docker Setup
+
+1. Build the container:
+   ```bash
+   docker build -t endeavor-frontend .
+   ```
+
+2. Run the container:
+   ```bash
+   docker run -d \
+     --name endeavor-web \
+     -p 3000:3000 \
+     -e NEXT_PUBLIC_BACKEND_URL=http://localhost:8000 \
+     endeavor-frontend
+   ```
+
+## Features
+
+### 1. PDF Extraction
+- Upload PDF files
+- Extract item details automatically
+- View extracted data in a structured format
+
+### 2. Item Matching
+- Automatic matching with database items
+- Match score visualization
+- Manual match selection
+- Best match auto-selection
+
+### 3. Order Finalization
+- Edit customer information
+- Modify item details
+- Review order summary
+- Submit final order
+
+## Project Structure
+
+```
+/app
+  /components
+    Extract.tsx    # PDF upload and extraction
+    Match.tsx      # Item matching interface
+    Finalize.tsx   # Order finalization form
+  page.tsx         # Main application page
+  layout.tsx       # Root layout
+/styles
+  globals.css      # Global styles and Tailwind
+```
+
+## Development
+
+### Build
 ```bash
-npm run dev
+npm run build
 # or
-yarn dev
+yarn build
+```
+
+### Type Checking
+```bash
+npm run type-check
 # or
+yarn type-check
+```
+
+### Linting
+```bash
+npm run lint
+# or
+yarn lint
+```
+
+## Dependencies
+
+- Next.js 14
+- React 18
+- TypeScript 5
+- Tailwind CSS
+- Axios for API requests
+
+## Notes
+
+- The application expects a backend service running at `NEXT_PUBLIC_BACKEND_URL`
+- File uploads are limited to PDF format
+- The UI is optimized for desktop viewing
 pnpm dev
 # or
 bun dev
