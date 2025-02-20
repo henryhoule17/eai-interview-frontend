@@ -1,15 +1,17 @@
 'use client';
 
 import { useState, useCallback, useEffect } from 'react';
-import { DocumentArrowUpIcon, CheckCircleIcon, XCircleIcon, MagnifyingGlassIcon, ArrowPathIcon } from '@heroicons/react/24/outline';
+import { DocumentArrowUpIcon, XCircleIcon } from '@heroicons/react/24/outline';
+import Extract from '../components/Extract';
+import Match from '../components/Match';
+import Finalize from '../components/Finalize';
 
-interface ExtractedData {
-  orderNumber?: string;
-  customerInfo?: string;
+export interface ExtractedData {
   items?: Array<{
     name: string;
     quantity: number;
     price: number;
+    total: number;
   }>;
 }
 
@@ -19,7 +21,7 @@ export default function UploadPage() {
   const [error, setError] = useState<string | null>(null);
 
   const [extractedData, setExtractedData] = useState<ExtractedData | null>(null);
-  const [isExtracting, setIsExtracting] = useState(false);
+  const [activeView, setActiveView] = useState<'extract' | 'match' | 'finalize'>('extract');
   const [fileUrl, setFileUrl] = useState<string | null>(null);
 
   // Cleanup URL objects when component unmounts or when fileUrl changes
@@ -29,11 +31,6 @@ export default function UploadPage() {
         URL.revokeObjectURL(fileUrl);
       }
     };
-  }, [fileUrl]);
-
-  // Track fileUrl updates
-  useEffect(() => {
-    console.log('fileUrl updated:', fileUrl);
   }, [fileUrl]);
 
   const handleDragOver = (e: React.DragEvent) => {
@@ -92,9 +89,6 @@ export default function UploadPage() {
     console.log('New URL created:', url);
   }, [fileUrl]); // Add fileUrl as dependency to properly cleanup
 
-  const handleExtract = () => {};
-  const handleMatch = () => {};
-
   return (
     <div className="bg-white shadow rounded-lg overflow-hidden">
       <div className="px-4 py-5 sm:px-6">
@@ -133,9 +127,9 @@ export default function UploadPage() {
             </div>
           </div>
         ) : (
-          <div className="flex gap-6">
+          <div className="grid grid-cols-2 gap-6">
             {/* Left side - PDF Viewer */}
-            <div className="flex-1 border rounded-lg overflow-hidden">
+            <div className="border rounded-lg overflow-hidden">
               <div className="bg-gray-50 px-4 py-3 border-b flex justify-between items-center">
                 <span className="text-sm font-medium text-gray-700">{file.name}</span>
                 <button
@@ -157,71 +151,58 @@ export default function UploadPage() {
               </div>
             </div>
 
-            {/* Right side - Extraction Controls */}
-            <div className="w-96 border rounded-lg overflow-hidden">
+            {/* Right side - Controls */}
+            <div className="border rounded-lg overflow-hidden">
               <div className="bg-gray-50 px-4 py-3 border-b">
-                <h3 className="text-sm font-medium text-gray-700">Extracted Data</h3>
+                <div className="flex space-x-1 rounded-lg bg-gray-100 p-0.5">
+                  <button
+                    onClick={() => setActiveView('extract')}
+                    className={`flex-1 rounded-md py-1.5 text-sm font-medium ${
+                      activeView === 'extract'
+                        ? 'bg-white shadow'
+                        : 'text-gray-500 hover:text-gray-700'
+                    }`}
+                  >
+                    Extract
+                  </button>
+                  <button
+                    onClick={() => setActiveView('match')}
+                    className={`flex-1 rounded-md py-1.5 text-sm font-medium ${
+                      activeView === 'match'
+                        ? 'bg-white shadow'
+                        : 'text-gray-500 hover:text-gray-700'
+                    }`}
+                  >
+                    Match
+                  </button>
+                  <button
+                    onClick={() => setActiveView('finalize')}
+                    className={`flex-1 rounded-md py-1.5 text-sm font-medium ${
+                      activeView === 'finalize'
+                        ? 'bg-white shadow'
+                        : 'text-gray-500 hover:text-gray-700'
+                    }`}
+                  >
+                    Finalize
+                  </button>
+                </div>
               </div>
               <div className="p-4 space-y-4">
-                <button
-                  type="button"
-                  onClick={handleExtract}
-                  disabled={isExtracting}
-                  className="w-full flex justify-center items-center gap-2 py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:bg-gray-400 disabled:cursor-not-allowed"
-                >
-                  {isExtracting ? (
-                    <>
-                      <ArrowPathIcon className="h-5 w-5 animate-spin" />
-                      Extracting...
-                    </>
-                  ) : (
-                    <>
-                      <MagnifyingGlassIcon className="h-5 w-5" />
-                      Extract Data
-                    </>
-                  )}
-                </button>
-
-                {extractedData && (
-                  <div className="space-y-4">
-                    <div className="rounded-md bg-gray-50 p-4">
-                      <dl className="space-y-2">
-                        <div>
-                          <dt className="text-sm font-medium text-gray-500">Order Number</dt>
-                          <dd className="mt-1 text-sm text-gray-900">{extractedData.orderNumber || 'Not found'}</dd>
-                        </div>
-                        <div>
-                          <dt className="text-sm font-medium text-gray-500">Customer Info</dt>
-                          <dd className="mt-1 text-sm text-gray-900">{extractedData.customerInfo || 'Not found'}</dd>
-                        </div>
-                        {extractedData.items && extractedData.items.length > 0 && (
-                          <div>
-                            <dt className="text-sm font-medium text-gray-500">Items</dt>
-                            <dd className="mt-1">
-                              <ul className="divide-y divide-gray-200">
-                                {extractedData.items.map((item, index) => (
-                                  <li key={index} className="py-2">
-                                    <div className="text-sm text-gray-900">{item.name}</div>
-                                    <div className="text-sm text-gray-500">
-                                      Qty: {item.quantity} × ${item.price.toFixed(2)}
-                                    </div>
-                                  </li>
-                                ))}
-                              </ul>
-                            </dd>
-                          </div>
-                        )}
-                      </dl>
-                    </div>
-
-                    <button
-                      type="button"
-                      onClick={handleMatch}
-                      className="w-full flex justify-center items-center gap-2 py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
-                    >
-                      Match and Create Order
-                    </button>
-                  </div>
+                {activeView === 'extract' ? (
+                  <Extract
+                    file={file}
+                    extractedData={extractedData}
+                    setExtractedData={setExtractedData}
+                  />
+                ) : activeView === 'match' ? (
+                  <Match 
+                    extractedData={extractedData}
+                    setExtractedData={setExtractedData}
+                  />
+                ) : (
+                  <Finalize
+                    extractedData={extractedData}
+                  />
                 )}
               </div>
             </div>
